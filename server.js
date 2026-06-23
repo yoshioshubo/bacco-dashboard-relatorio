@@ -4,11 +4,28 @@ const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const htmlPath = path.join(__dirname, 'public', 'index.html');
 
-const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf-8');
+// Load HTML at startup with error handling
+let html;
+try {
+  html = fs.readFileSync(htmlPath, 'utf-8');
+  console.log(`✓ Loaded HTML: ${htmlPath} (${html.length} bytes)`);
+} catch (err) {
+  console.error(`✗ Failed to load HTML from ${htmlPath}`);
+  console.error(`  Error: ${err.message}`);
+  process.exit(1);
+}
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => res.send(html));
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
-app.listen(PORT, () => console.log(`Listening on ${PORT}`));
+const server = app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
+});
+
+server.on('error', (err) => {
+  console.error(`Server error: ${err.message}`);
+  process.exit(1);
+});

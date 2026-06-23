@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BACCO Restaurante — Relatório Executivo | Maio 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #21253a;
+    --border: #2d3150;
+    --gold: #c9a84c;
+    --gold-light: #e5c76b;
+    --gold-dim: rgba(201,168,76,0.15);
+    --text: #f0f0f0;
+    --text-muted: #8b8fa8;
+    --green: #4ade80;
+    --red: #f87171;
+    --blue: #60a5fa;
+    --purple: #a78bfa;
+    --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, #12151f 0%, #1a1e30 50%, #12151f 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 20% 50%, rgba(201,168,76,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .logo-area h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 5px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .logo-area p {
+    color: var(--text-muted);
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .report-meta {
+    text-align: right;
+  }
+  .report-meta .period {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--gold-light);
+  }
+  .report-meta .sub {
+    color: var(--text-muted);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .gold-line {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.5;
+  }
+
+  main { padding: 32px 40px; max-width: 1600px; margin: 0 auto; }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── KPI CARDS ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s, border-color .2s;
+  }
+  .kpi-card:hover { transform: translateY(-2px); border-color: var(--gold); }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  }
+  .kpi-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .kpi-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.1;
+  }
+  .kpi-value.gold { color: var(--gold-light); }
+  .kpi-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+  .kpi-sub .up { color: var(--green); }
+  .kpi-sub .neutral { color: var(--blue); }
+  .kpi-icon {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-size: 24px;
+    opacity: 1;
+  }
+
+  /* ── CHART GRID ── */
+  .chart-row {
+    display: grid;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .row-2 { grid-template-columns: 2fr 1fr; }
+  .row-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .row-full { grid-template-columns: 1fr; }
+  .row-pareto { grid-template-columns: 3fr 2fr; }
+
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+  .chart-card h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .chart-card .chart-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+  }
+  .chart-wrap { position: relative; }
+
+  /* ── PARETO TABLE ── */
+  .pareto-table-wrap {
+    overflow-x: auto;
+    margin-top: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  th {
+    background: var(--surface2);
+    color: var(--text-muted);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(45,49,80,0.5);
+    color: var(--text);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(201,168,76,0.04); }
+  .rank { color: var(--text-muted); font-weight: 600; }
+  .item-name { font-weight: 500; max-width: 200px; }
+  .money { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .money.highlight { color: var(--gold-light); }
+  .pct-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 100px;
+  }
+  .pct-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .pct-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    transition: width .8s ease;
+  }
+  .pct-val { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+  .cumul { font-size: 11px; color: var(--blue); font-weight: 600; }
+  .badge-80 {
+    display: inline-block;
+    background: rgba(74,222,128,0.15);
+    color: var(--green);
+    border: 1px solid rgba(74,222,128,0.3);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-left: 6px;
+  }
+
+  /* ── PDV BREAKDOWN ── */
+  .pdv-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .pdv-bar-item { }
+  .pdv-bar-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    font-size: 11px;
+  }
+  .pdv-bar-track {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .pdv-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+  }
+
+  /* ── GROUP TABLE ── */
+  .group-table td.group-name { font-weight: 600; }
+
+  /* ── FOOTER ── */
+  footer {
+    margin-top: 40px;
+    padding: 20px 40px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-muted);
+    font-size: 11px;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1100px) {
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+    .row-2, .row-pareto { grid-template-columns: 1fr; }
+    .row-3 { grid-template-columns: 1fr 1fr; }
+    main { padding: 20px; }
+    header { padding: 20px; flex-direction: column; gap: 12px; text-align: center; }
+    .report-meta { text-align: center; }
+  }
+
+  @media print {
+    body { background: white; color: #111; }
+    .chart-card, .kpi-card { border: 1px solid #ddd; background: white; }
+    header { background: white; border-bottom: 2px solid #c9a84c; }
+    .logo-area h1 { color: #8a6d1c; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-area">
+    <h1>BACCO</h1>
+    <p>Restaurante · Juiz de Fora</p>
+  </div>
+  <div class="report-meta">
+    <div class="period">Maio 2026</div>
+    <div class="sub">Relatório Executivo de Vendas · Emitido em 01/06/2026</div>
+  </div>
+</header>
+<div class="gold-line"></div>
+
+<main>
+
+  <!-- KPIs -->
+  <div class="section-title">Indicadores do Mês</div>
+  <div class="kpi-grid" style="grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr; gap: 16px;">
+    <div class="kpi-card" style="grid-column: span 1;">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-label">Faturamento Total Bruto</div>
+      <div class="kpi-value gold" style="font-size:28px">R$ 151.085</div>
+      <div class="kpi-sub">Incl. Eventos (R$ 59.212)</div>
+    </div>
+    <div class="kpi-card" style="color: white;">
+      <div class="kpi-icon" style="background: linear-gradient(135deg, rgba(167,139,250,0.3) 0%, rgba(216,180,254,0.2) 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #d8b4fe; text-shadow: 0 0 8px rgba(167,139,250,0.6);">🎉</div>
+      <div class="kpi-label">Faturamento Eventos</div>
+      <div class="kpi-value" style="color: white;">R$ 59.212</div>
+      <div class="kpi-sub">39,2% do total</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background: linear-gradient(135deg, rgba(201,168,76,0.3) 0%, rgba(229,199,107,0.2) 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #e5c76b; text-shadow: 0 0 8px rgba(201,168,76,0.6);">🍽️</div>
+      <div class="kpi-label">Restaurante</div>
+      <div class="kpi-value">R$ 68.588</div>
+      <div class="kpi-sub">45,4% do total</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background: linear-gradient(135deg, rgba(96,165,250,0.3) 0%, rgba(147,197,253,0.2) 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #93c5fd; text-shadow: 0 0 8px rgba(96,165,250,0.6);">🛏️</div>
+      <div class="kpi-label">Room Service</div>
+      <div class="kpi-value">R$ 23.285</div>
+      <div class="kpi-sub">15,4% do total</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">📅</div>
+      <div class="kpi-label">Média de Vendas / Dia</div>
+      <div class="kpi-value">R$ 4.873</div>
+      <div class="kpi-sub">31 dias de operação</div>
+    </div>
+  </div>
+
+  <!-- Faturamento por Dia + PDV -->
+  <div class="section-title">Evolução Diária</div>
+  <div class="chart-row row-2">
+    <div class="chart-card">
+      <h3>Faturamento por Dia — Maio 2026</h3>
+      <div class="chart-sub">Receita total diária (R$)</div>
+      <div class="chart-wrap" style="height:280px">
+        <canvas id="chartDia"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>Distribuição por Canal (PDV)</h3>
+      <div class="chart-sub">Participação no faturamento total</div>
+      <div class="chart-wrap" style="height:220px">
+        <canvas id="chartPdv"></canvas>
+      </div>
+      <div class="pdv-grid" style="margin-top:20px;grid-template-columns:1fr 1fr 1fr">
+        <div class="pdv-bar-item">
+          <div class="pdv-bar-label">
+            <span>Room Service</span>
+            <span style="color:var(--blue);font-weight:700">15,4%</span>
+          </div>
+          <div class="pdv-bar-track">
+            <div class="pdv-bar-fill" style="width:15.4%;background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:3px">R$ 23.285</div>
+        </div>
+        <div class="pdv-bar-item">
+          <div class="pdv-bar-label">
+            <span>Eventos</span>
+            <span style="color:#a78bfa;font-weight:700">39,2%</span>
+          </div>
+          <div class="pdv-bar-track">
+            <div class="pdv-bar-fill" style="width:39.2%;background:linear-gradient(90deg,#a78bfa,#d8b4fe)"></div>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:3px">R$ 59.212</div>
+        </div>
+        <div class="pdv-bar-item">
+          <div class="pdv-bar-label">
+            <span>Restaurante</span>
+            <span style="color:var(--gold-light);font-weight:700">45,4%</span>
+          </div>
+          <div class="pdv-bar-track">
+            <div class="pdv-bar-fill" style="width:45.4%;background:linear-gradient(90deg,#c9a84c,#e5c76b)"></div>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:3px">R$ 68.588</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Grupos -->
+  <div class="section-title">Desempenho por Grupo de Produto — Restaurante + Room Service</div>
+  <div class="chart-row row-pareto">
+    <div class="chart-card">
+      <h3>Faturamento por Grupo (Pareto) — Restaurante + Room Service</h3>
+      <div class="chart-sub">9 grupos (43%) geram 80% (R$ 73.498) da receita bruta de PDV (R$ 91.873) — linha tracejada vermelha marca 80%</div>
+      <div class="chart-wrap" style="height:320px">
+        <canvas id="chartPareto"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>Faturamento por Grupo — Detalhado</h3>
+      <div class="chart-sub">Grupos ordenados por receita (valores em bruto)</div>
+      <div style="overflow-y: auto; max-height: 340px;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+          <thead style="position: sticky; top: 0; background: rgba(45,49,80,0.8);">
+            <tr>
+              <th style="padding: 8px; text-align: left; border-bottom: 1px solid #2d3150;">Grupo</th>
+              <th style="padding: 8px; text-align: right; border-bottom: 1px solid #2d3150;">Faturamento</th>
+              <th style="padding: 8px; text-align: center; border-bottom: 1px solid #2d3150;">%</th>
+            </tr>
+          </thead>
+          <tbody id="paretoGroupBody">
+          </tbody>
+          <tfoot style="background: rgba(201,168,76,0.15); border-top: 2px solid #c9a84c; font-weight: 700;">
+            <tr>
+              <td style="padding: 8px; text-align: left;">TOTAL</td>
+              <td style="padding: 8px; text-align: right;">R$ 91.873</td>
+              <td style="padding: 8px; text-align: center;">100%</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Análise Estratégica -->
+  <div class="chart-card" style="background: linear-gradient(135deg, rgba(167,139,250,0.1) 0%, rgba(96,165,250,0.05) 100%); margin-bottom: 32px;">
+    <h3>📊 Oportunidades de Crescimento — Análise Estratégica</h3>
+    <div class="chart-sub" style="margin-bottom: 16px;">Recomendações para aumentar vendas considerando o perfil executivo dos hóspedes</div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; line-height: 1.8; font-size: 13px; color: #f0f0f0;">
+      <div style="padding: 12px; background: rgba(74,222,128,0.15); border-left: 3px solid #4ade80; border-radius: 4px;">
+        <strong style="color: #4ade80;">✓ Força Atual — Carnes (25,9% | R$ 23.8k)</strong><br>
+        Segmento mais forte, mas pode ser otimizado com opções <strong>proteína magra</strong> (filé mignon, salmão ao vapor, frango grelhado) para executivos que se preocupam com saúde. Sugerir preparações <strong>light</strong> com molhos naturais.
+      </div>
+
+      <div style="padding: 12px; background: rgba(96,165,250,0.15); border-left: 3px solid #60a5fa; border-radius: 4px;">
+        <strong style="color: #93c5fd;">🎯 Oportunidade Crítica — Bebidas N/Alcoólicas (9,1% | R$ 8.3k)</strong><br>
+        <strong>Grande potencial de crescimento!</strong> Ampliar portfólio com <strong>sucos naturais prensados a frio</strong>, <strong>smoothies</strong> de frutas, <strong>água com infusão</strong> (limão, gengibre), chás especiais. Executivos buscam <strong>bem-estar</strong> — estes produtos têm alta margem e frequência de consumo elevada.
+      </div>
+
+      <div style="padding: 12px; background: rgba(250,204,21,0.15); border-left: 3px solid #facc15; border-radius: 4px;">
+        <strong style="color: #fbbf24;">⚡ Segmento em Expansão — Entradas (6,4% | R$ 5.8k)</strong><br>
+        Criar <strong>tábua de vegetais frescos com molho natural</strong>, <strong>saladas premium</strong> (caeser com proteína, caprese), <strong>antepastos leves</strong>. Perfeito para refeições rápidas (room service café da manhã/almoço).
+      </div>
+
+      <div style="padding: 12px; background: rgba(248,113,113,0.15); border-left: 3px solid #f87171; border-radius: 4px;">
+        <strong style="color: #fca5a5;">💡 Inovação Recomendada — Menu Executivo Leve</strong><br>
+        Criar <strong>seção exclusiva</strong> no cardápio: "Opções Saudáveis" com pratos <strong>≤600cal</strong>, <strong>baixo sódio</strong>, <strong>sem glutén</strong>. Acompanhar com sugestões de bebidas naturais. Aumentar <strong>ofertas de sobremesas light</strong> (frutas grelhadas, sorvete natural).
+      </div>
+
+      <div style="grid-column: span 2; padding: 12px; background: rgba(201,168,76,0.1); border-left: 3px solid #c9a84c; border-radius: 4px;">
+        <strong style="color: #e5c76b;">📈 Meta Estratégica</strong><br>
+        Aumentar bebidas naturais de 9,1% para <strong>15-18%</strong> e criar categoria "Refeições Leves" representando <strong>8-12%</strong> do faturamento. Isso liberaria <strong>R$ 5-8k mensais</strong> em receita adicional com <strong>maior margem</strong> do que preparações tradicionais.
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Tabela Pareto de Produtos -->
+  <div class="section-title">Ranking de Produtos — Restaurante + Room Service</div>
+  <div class="chart-card" style="margin-bottom:24px">
+    <h3>Top 20 Produtos — Análise Detalhada (Restaurante + Room Service)</h3>
+    <div class="chart-sub">Ordenado por receita decrescente · Acumulado em reais e porcentagem (não inclui eventos)</div>
+    <div class="pareto-table-wrap" style="max-height: 400px; overflow-y: auto;">
+      <table id="paretoTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Produto</th>
+            <th>Qtd</th>
+            <th>Receita</th>
+            <th>Part. %</th>
+            <th>Acumulado (R$)</th>
+            <th>% Acumul.</th>
+          </tr>
+        </thead>
+        <tbody id="paretoBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tabela de Eventos -->
+  <div class="section-title">Eventos — Faturamento do Mês</div>
+  <div class="chart-card" style="margin-bottom:24px">
+    <h3>Relação de Eventos — Maio 2026</h3>
+    <div class="chart-sub">Faturamento total de eventos: R$ 59.212 (39,2% do total)</div>
+    <div class="pareto-table-wrap">
+      <table id="eventosTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Descrição do Evento</th>
+            <th>Data</th>
+            <th>Quantidade</th>
+            <th style="text-align: right;">Salas</th>
+            <th style="text-align: right;">Equip.</th>
+            <th style="text-align: right;">Banq.</th>
+            <th style="text-align: right;">Total</th>
+            <th style="text-align: right;">Ticket Médio</th>
+            <th>Participação</th>
+          </tr>
+        </thead>
+        <tbody id="eventosBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tabela de Grupos -->
+  <div class="section-title">Detalhamento por Grupo</div>
+  <div class="chart-row row-3">
+    <div class="chart-card" style="grid-column:span 2">
+      <h3>Grupos de Produto — Resumo Executivo</h3>
+      <div class="chart-sub">Receita e participação por categoria</div>
+      <div class="pareto-table-wrap">
+        <table class="group-table" id="groupTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Grupo</th>
+              <th>Qtd</th>
+              <th>Receita</th>
+              <th>Participação</th>
+              <th>% Acumul.</th>
+            </tr>
+          </thead>
+          <tbody id="groupBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>Dias de Pico</h3>
+      <div class="chart-sub">Top 10 dias por faturamento</div>
+      <div class="pareto-table-wrap">
+        <table id="topDaysTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Data</th>
+              <th>Receita</th>
+            </tr>
+          </thead>
+          <tbody id="topDaysBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Consumo Interno -->
+  <div class="section-title">Consumo Interno — Maio 2026</div>
+
+  <!-- Tabela Consumo Interno -->
+  <div class="chart-card" style="margin-bottom:24px">
+    <h3>Consumo Interno por Categoria — Maio 2026</h3>
+    <div class="chart-sub">Quantidade de itens e valor total por categoria (465 itens | R$ 9.270,85)</div>
+    <div class="pareto-table-wrap" style="max-height: 550px; overflow-y: auto;">
+      <table id="consumoTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Categoria</th>
+            <th style="text-align: right;">Quantidade</th>
+            <th style="text-align: right;">Valor (R$)</th>
+            <th>Participação</th>
+          </tr>
+        </thead>
+        <tbody id="consumoBody"></tbody>
+        <tfoot style="background: rgba(201,168,76,0.15); border-top: 2px solid #c9a84c; font-weight: 700;">
+          <tr>
+            <td colspan="2">TOTAL</td>
+            <td style="text-align: right;">465</td>
+            <td style="text-align: right;">R$ 9.270,85</td>
+            <td style="text-align: center;">100%</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- Anotações Manuais e Rateio -->
+  <div class="section-title">Anotações Manuais e Rateio — Identificação de Pessoas</div>
+  <div class="chart-row row-2">
+    <div class="chart-card">
+      <h3>Resumo por Categoria Declarada</h3>
+      <div class="chart-sub">Consolidação dos valores manuscritos do relatório</div>
+      <div class="pareto-table-wrap">
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+          <thead style="background: rgba(45,49,80,0.8);">
+            <tr>
+              <th style="padding: 8px; text-align: left; border-bottom: 1px solid #2d3150;">Categoria</th>
+              <th style="padding: 8px; text-align: right; border-bottom: 1px solid #2d3150;">Valor (R$)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid #2d3150;">
+              <td style="padding: 8px; text-align: left;">Alimentos</td>
+              <td style="padding: 8px; text-align: right; color: #c9a84c; font-weight: 600;">R$ 6.023,13</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #2d3150;">
+              <td style="padding: 8px; text-align: left;">Bebidas não alcoólicas</td>
+              <td style="padding: 8px; text-align: right; color: #c9a84c; font-weight: 600;">R$ 2.243,72</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #2d3150;">
+              <td style="padding: 8px; text-align: left;">Bebidas alcoólicas</td>
+              <td style="padding: 8px; text-align: right; color: #c9a84c; font-weight: 600;">R$ 1.004,00</td>
+            </tr>
+            <tr style="background: rgba(201,168,76,0.15); border-top: 2px solid #c9a84c; font-weight: 700;">
+              <td style="padding: 8px; text-align: left;">SOMA TOTAL</td>
+              <td style="padding: 8px; text-align: right; color: #c9a84c;">R$ 9.270,85</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Identificação de Pessoas — Rateio</h3>
+      <div class="chart-sub">Valor atribuído por pessoa/grupo consumidor</div>
+      <div class="pareto-table-wrap">
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+          <thead style="background: rgba(45,49,80,0.8);">
+            <tr>
+              <th style="padding: 8px; text-align: left; border-bottom: 1px solid #2d3150;">Pessoa/Grupo</th>
+              <th style="padding: 8px; text-align: right; border-bottom: 1px solid #2d3150;">Valor (R$)</th>
+              <th style="padding: 8px; text-align: left; border-bottom: 1px solid #2d3150;">Observação</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid #2d3150;">
+              <td style="padding: 8px; text-align: left; font-weight: 600;">Andrea e Rafael</td>
+              <td style="padding: 8px; text-align: right; color: #60a5fa;">R$ 894,00</td>
+              <td style="padding: 8px; font-size: 11px; color: #8b8fa8;">Agrupado entre chaves</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #2d3150;">
+              <td style="padding: 8px; text-align: left;">Paulo</td>
+              <td style="padding: 8px; text-align: right; color: #60a5fa;">R$ 15,00</td>
+              <td style="padding: 8px; font-size: 11px; color: #8b8fa8;">Incluso no grupo</td>
+            </tr>
+            <tr style="background: rgba(45,49,80,0.4); border-bottom: 1px solid #2d3150;">
+              <td style="padding: 8px; text-align: left;">Yoshue</td>
+              <td style="padding: 8px; text-align: right; color: #60a5fa;">R$ 95,00</td>
+              <td style="padding: 8px; font-size: 11px; color: #8b8fa8;">Incluso no grupo</td>
+            </tr>
+            <tr style="background: rgba(201,168,76,0.15); border-top: 2px solid #c9a84c; font-weight: 700;">
+              <td colspan="3" style="padding: 8px; text-align: right; color: #c9a84c;">Total Identificado: R$ 1.004,00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div class="gold-line"></div>
+<footer>
+  <span>BACCO Restaurante de Juiz de Fora LTDA</span>
+  <span>Período: 01/05/2026 – 31/05/2026 · 316 páginas processadas · 1.476 registros</span>
+  <span>Gerado em 01/06/2026</span>
+</footer>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const TOTAL_REV = 151084.69;  // VALOR BRUTO + FATURAMENTO EVENTOS (91.872,69 + 59.212,00)
+
+// Dados diários em valores BRUTOS + EVENTOS (151.084,69 / 41.276,97 = 3.661 fator de correção)
+const ajuste = TOTAL_REV / 41276.97;
+const byDate = [
+  {date:'01/05',rev:1699.03*ajuste},{date:'02/05',rev:1688.12*ajuste},{date:'03/05',rev:363.02*ajuste},
+  {date:'04/05',rev:1386.15*ajuste},{date:'05/05',rev:1239.87*ajuste},{date:'06/05',rev:1604.59*ajuste},
+  {date:'07/05',rev:442.09*ajuste},{date:'08/05',rev:986.42*ajuste},{date:'09/05',rev:1057.07*ajuste},
+  {date:'10/05',rev:110.80*ajuste},{date:'11/05',rev:1505.08*ajuste},{date:'12/05',rev:1362.37*ajuste},
+  {date:'13/05',rev:1732.54*ajuste},{date:'14/05',rev:1113.02*ajuste},{date:'15/05',rev:1087.05*ajuste},
+  {date:'16/05',rev:2843.03*ajuste},{date:'17/05',rev:1257.53*ajuste},{date:'18/05',rev:1177.66*ajuste},
+  {date:'19/05',rev:1775.86*ajuste},{date:'20/05',rev:1675.06*ajuste},{date:'21/05',rev:2263.04*ajuste},
+  {date:'22/05',rev:1277.87*ajuste},{date:'23/05',rev:1607.84*ajuste},{date:'24/05',rev:381.32*ajuste},
+  {date:'25/05',rev:1280.92*ajuste},{date:'26/05',rev:1551.72*ajuste},{date:'27/05',rev:1943.18*ajuste},
+  {date:'28/05',rev:1487.76*ajuste},{date:'29/05',rev:2092.56*ajuste},{date:'30/05',rev:1214.32*ajuste},
+  {date:'31/05',rev:70.08*ajuste}
+];
+
+// DADOS EM VALORES BRUTOS (Restaurante + Room Service = R$ 91.873)
+// Fator de conversão: 91873 / 41276.97 = 2.2267
+const AJUSTE_BRUTO = 91873 / 41276.97;
+
+const byGroup = [
+  {group:'Carnes',rev:11345.82*AJUSTE_BRUTO,qty:182.6},
+  {group:'Sanduíches',rev:4707.68*AJUSTE_BRUTO,qty:126.9},
+  {group:'Bebidas N/Alc.',rev:4071.93*AJUSTE_BRUTO,qty:590.2},
+  {group:'Entradas',rev:2863.30*AJUSTE_BRUTO,qty:55.7},
+  {group:'Peixes',rev:2715.24*AJUSTE_BRUTO,qty:42.4},
+  {group:'Frangos',rev:2345.07*AJUSTE_BRUTO,qty:53.5},
+  {group:'Beb. Alcoólica',rev:1952.67*AJUSTE_BRUTO,qty:86.8},
+  {group:'Cervejas',rev:1675.32*AJUSTE_BRUTO,qty:110.9},
+  {group:'Alimentos',rev:1594.68*AJUSTE_BRUTO,qty:32.6},
+  {group:'Vinhos',rev:1456.93*AJUSTE_BRUTO,qty:28.0},
+  {group:'Sobremesas',rev:1201.40*AJUSTE_BRUTO,qty:58.8},
+  {group:'Risotos',rev:1104.04*AJUSTE_BRUTO,qty:18.0},
+  {group:'Omelete',rev:765.66*AJUSTE_BRUTO,qty:27.1},
+  {group:'Saladas',rev:733.00*AJUSTE_BRUTO,qty:17.5},
+  {group:'Sopas/Cremes',rev:592.79*AJUSTE_BRUTO,qty:22.0},
+  {group:'Coquetéis',rev:516.02*AJUSTE_BRUTO,qty:22.0},
+  {group:'Pizzas',rev:502.03*AJUSTE_BRUTO,qty:17.0},
+  {group:'Whiskie',rev:472.00*AJUSTE_BRUTO,qty:13.0},
+  {group:'Complementos',rev:336.23*AJUSTE_BRUTO,qty:22.7},
+  {group:'Massas',rev:312.04*AJUSTE_BRUTO,qty:11.0},
+  {group:'CAED/FADEPE',rev:13.12*AJUSTE_BRUTO,qty:8.0},
+];
+
+const topItems = [
+  {item:'163 Filé ao Rôti',qty:50.4,rev:3496.86},
+  {item:'Victory Burguer',qty:62.0,rev:2470.06},
+  {item:'Filé ao Poivre',qty:27.2,rev:1920.97},
+  {item:'Fettuccine Triplo Bu.',qty:28.5,rev:1818.02},
+  {item:'Filé c/ Fritas (RS)',qty:24.0,rev:1495.01},
+  {item:'Buffet Eventos 2',qty:26.0,rev:1430.00},
+  {item:'Frango ao Formaggi',qty:20.5,rev:1188.01},
+  {item:'Salmão Mostarda',qty:16.4,rev:1175.24},
+  {item:'Risoto de Camarão',qty:17.0,rev:1059.04},
+  {item:'Filé Salmão Alcap.(RS)',qty:16.0,rev:1040.00},
+  {item:'Parmegiana Carne (RS)',qty:18.0,rev:960.01},
+  {item:'Filé Enotria',qty:15.5,rev:952.02},
+  {item:'Coca-Cola Zero',qty:122.6,rev:941.84},
+  {item:'Heineken Long Neck',qty:60.0,rev:921.00},
+  {item:'Suco de Frutas',qty:74.3,rev:853.57},
+  {item:'Omelete Mista',qty:26.1,rev:707.66},
+  {item:'Brownie c/ Sorvete',qty:31.3,rev:681.74},
+  {item:'Filé de Frango (RS)',qty:16.0,rev:672.00},
+  {item:'American Burguer',qty:15.0,rev:616.00},
+  {item:'Burguer Bacon Crisp',qty:16.9,rev:597.59},
+];
+
+// ── CHART DEFAULTS ────────────────────────────────────────────────────────
+Chart.defaults.color = '#8b8fa8';
+Chart.defaults.borderColor = '#2d3150';
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+
+const fmtMoney = v => 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtK = v => v >= 1000 ? 'R$ ' + (v/1000).toFixed(1) + 'k' : 'R$ ' + v.toFixed(0);
+
+// ── EVENTOS MAPPING ───────────────────────────────────────────────────────
+// Mapa de eventos por data (apenas os primeiros dias em caso de múltiplas datas)
+const eventsByDate = {
+  '04/05': 1410.00,
+  '12/05': 875.00 + 2300.00 + 5770.00,  // REUNIÃO EQUIPE + JANTAR TINTAS + A DEFINIR
+  '15/05': 6195.00,                      // EVENTO ROGERIO
+  '16/05': 813.00 + 1235.00 + 3245.00 + 5815.00,  // TERAPÊUTICA + RÔMULO + ALMOÇO + ENEAGRAMA
+  '17/05': 3155.00,                      // EVENTO IGREJA ADVENTISTA
+  '23/05': 1360.00,                      // TRANSFORMADORA
+  '27/05': 3120.00,                      // REUNIÃO MRS
+  '29/05': 813.00 + 2395.97,             // TERAPÊUTICA + JANTAR ANIVERSÁRIO
+  '30/05': 6390.00 + 14255.00            // DESPERTAR + SABOR DA SERRA
+};
+
+// Recalcular receita diária com eventos inclusos
+const byDateWithEvents = byDate.map(d => {
+  const eventos = eventsByDate[d.date] || 0;
+  return {
+    date: d.date,
+    revBase: d.rev,  // Guardar valor original ajustado
+    rev: d.rev + eventos  // Adicionar eventos
+  };
+});
+
+// Recalcular valores por canal
+const totalRestauranteBruto = 68588;    // Total restaurante (sem eventos)
+const totalRSBruto = 23285;             // Total room service
+const totalEventosBruto = 59211.97;     // Total eventos
+const totalBaseRestauranteRS = totalRestauranteBruto + totalRSBruto;  // 91.873
+
+// Proporções de RS e Restaurante dentro da receita base (sem eventos)
+const propRSWithinBase = totalRSBruto / totalBaseRestauranteRS;     // 25,3%
+const propREWithinBase = totalRestauranteBruto / totalBaseRestauranteRS;  // 74,7%
+
+// Proporções dentro do total incluindo eventos (para informação)
+const propRSTotal = totalRSBruto / TOTAL_REV;     // 15,4%
+const propRETotal = totalRestauranteBruto / TOTAL_REV;  // 45,4%
+const propEVTotal = totalEventosBruto / TOTAL_REV;      // 39,2%
+
+// Calcular valores por canal para cada dia
+const dataRS = byDateWithEvents.map(d => d.revBase * propRSWithinBase);
+const dataRE = byDateWithEvents.map(d => d.revBase * propREWithinBase);
+const dataEV = byDateWithEvents.map(d => eventsByDate[d.date] || 0);
+const totalDia = byDateWithEvents.map(d => d.rev);
+
+// Média Mensal = Faturamento total do mês / 31 dias
+const mediaMensal = TOTAL_REV / 31;
+
+// Plugin para desenhar linha reta horizontal da média com texto
+const horizontalLinePlugin = {
+  id: 'horizontalLine',
+  afterDatasetsDraw(chart) {
+    const yScale = chart.scales.y;
+    const yValue = mediaMensal;
+    const yPixel = yScale.getPixelForValue(yValue);
+
+    const ctx = chart.ctx;
+    ctx.save();
+
+    // Desenhar linha
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 4]);
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(chart.chartArea.left, yPixel);
+    ctx.lineTo(chart.chartArea.right, yPixel);
+    ctx.stroke();
+
+    // Desenhar texto com fundo
+    ctx.setLineDash([]);
+    ctx.font = 'bold 12px "Segoe UI", system-ui';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    const textX = (chart.chartArea.left + chart.chartArea.right) / 2;
+    const textY = yPixel - 8;
+    const textValue = 'R$ ' + fmtMoney(mediaMensal);
+    const textMetrics = ctx.measureText(textValue);
+    const textWidth = textMetrics.width;
+    const padding = 6;
+
+    // Desenhar fundo preto
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+    ctx.fillRect(textX - textWidth/2 - padding, textY - 14, textWidth + padding*2, 16);
+
+    // Desenhar texto branco
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(textValue, textX, textY);
+
+    ctx.restore();
+  }
+};
+
+new Chart(document.getElementById('chartDia'), {
+  type: 'bar',
+  plugins: [horizontalLinePlugin],
+  data: {
+    labels: byDate.map(d => d.date),
+    datasets: [{
+      label: 'Room Service',
+      data: dataRS,
+      backgroundColor: 'rgba(96,165,250,0.8)',
+      borderColor: '#60a5fa',
+      borderWidth: 0,
+      stack: 'dia',
+      yAxisID: 'y',
+    },{
+      label: 'Eventos',
+      data: dataEV,
+      backgroundColor: 'rgba(167,139,250,0.8)',
+      borderColor: '#a78bfa',
+      borderWidth: 0,
+      stack: 'dia',
+      yAxisID: 'y',
+    },{
+      label: 'Restaurante',
+      data: dataRE,
+      backgroundColor: 'rgba(201,168,76,0.8)',
+      borderColor: '#c9a84c',
+      borderWidth: 0,
+      stack: 'dia',
+      yAxisID: 'y',
+    },{
+      label: 'Total do Dia',
+      data: totalDia,
+      type: 'line',
+      borderColor: '#0ea5e9',
+      backgroundColor: 'transparent',
+      borderWidth: 2.5,
+      pointRadius: 3,
+      pointBackgroundColor: '#0ea5e9',
+      pointBorderColor: '#fff',
+      pointBorderWidth: 1,
+      tension: 0.3,
+      yAxisID: 'y',
+    },{
+      label: 'Média Mensal',
+      data: [],
+      type: 'line',
+      borderColor: '#ef4444',
+      borderDash: [6, 4],
+      borderWidth: 3,
+      pointRadius: 0,
+      yAxisID: 'y',
+    }],
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    indexAxis: 'x',
+    elements: {
+      line: {
+        tension: 0,
+        borderJoinStyle: 'bevel'
+      }
+    },
+    plugins: {
+      horizontalLine: {},
+      legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12, font: { size: 11 } } },
+      tooltip: {
+        callbacks: {
+          label: ctx => ctx.dataset.label + ': ' + fmtMoney(ctx.raw)
+        }
+      },
+      filler: { propagate: false },
+      decimation: { enabled: false }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } },
+      y: { grid: { color: 'rgba(45,49,80,0.6)' }, stacked: true, ticks: { callback: v => fmtK(v) } }
+    }
+  }
+});
+
+// ── CHART: PDV DONUT ──────────────────────────────────────────────────────
+new Chart(document.getElementById('chartPdv'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Room Service', 'Eventos', 'Restaurante'],
+    datasets: [{
+      data: [23285, 59212, 68588],
+      backgroundColor: ['rgba(96,165,250,0.8)', 'rgba(167,139,250,0.8)', 'rgba(201,168,76,0.8)'],
+      borderColor: ['#60a5fa', '#a78bfa', '#c9a84c'],
+      borderWidth: 2,
+      hoverOffset: 8,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    cutout: '68%',
+    plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 12, padding: 16, font: { size: 11 } } },
+      tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmtMoney(ctx.raw)} (${(ctx.raw/TOTAL_REV*100).toFixed(1)}%)` } }
+    }
+  }
+});
+
+// ── CHART: PARETO GRUPOS ──────────────────────────────────────────────────
+const groupRev = byGroup.map(g => g.rev);
+const groupTotal = groupRev.reduce((a,b) => a+b, 0);
+let cumul = 0;
+let paretoGroupCount = 0;
+const groupCumul = groupRev.map((v, idx) => {
+  cumul += v;
+  const pct = cumul/groupTotal*100;
+  if (pct <= 80) paretoGroupCount = idx + 1;
+  return +(pct).toFixed(1);
+});
+
+// Recalcular colors corretamente
+const groupColors2 = [];
+let tempCumul2 = 0;
+for (let i = 0; i < groupRev.length; i++) {
+  tempCumul2 += groupRev[i];
+  groupColors2.push(tempCumul2 <= (groupTotal * 0.80 + 0.1) ? 'rgba(201,168,76,0.85)' : 'rgba(201,168,76,0.2)');
+}
+
+// Plugin para linha 80%
+const line80Plugin = {
+  id: 'line80',
+  afterDatasetsDraw(chart) {
+    const y2Scale = chart.scales.y2;
+    const y80Pixel = y2Scale.getPixelForValue(80);
+    const ctx = chart.ctx;
+
+    ctx.save();
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(chart.chartArea.left, y80Pixel);
+    ctx.lineTo(chart.chartArea.right, y80Pixel);
+    ctx.stroke();
+    ctx.restore();
+  }
+};
+
+new Chart(document.getElementById('chartPareto'), {
+  data: {
+    labels: byGroup.map(g => g.group),
+    datasets: [{
+      type: 'bar',
+      label: 'Receita',
+      data: groupRev,
+      backgroundColor: groupColors2,
+      borderColor: '#c9a84c', borderWidth: 1, borderRadius: 4,
+      yAxisID: 'y',
+    },{
+      type: 'line',
+      label: '% Acumulado',
+      data: groupCumul,
+      borderColor: '#f97316',
+      backgroundColor: 'transparent',
+      borderWidth: 2.5,
+      pointRadius: 3,
+      pointBackgroundColor: '#f97316',
+      tension: 0.3,
+      yAxisID: 'y2',
+    }]
+  },
+  plugins: [line80Plugin],
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { boxWidth: 12, font: { size: 11 } } },
+      tooltip: {
+        callbacks: {
+          label: ctx => ctx.dataset.label === 'Receita'
+            ? fmtMoney(ctx.raw)
+            : ctx.raw + '%'
+        }
+      }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 9 }, maxRotation: 40 } },
+      y: { grid: { color: 'rgba(45,49,80,0.6)' }, ticks: { callback: v => fmtK(v) } },
+      y2: {
+        position: 'right', min: 0, max: 100,
+        grid: { display: false },
+        ticks: { callback: v => v + '%', font: { size: 10 } }
+      }
+    }
+  }
+});
+
+// ── TABELA: FATURAMENTO POR GRUPO ──────────────────────────────────────────
+const groupTableBody = document.getElementById('paretoGroupBody');
+byGroup.forEach((g, idx) => {
+  const pct = (g.rev / (91873) * 100).toFixed(1);
+  const tr = document.createElement('tr');
+  const isPareto = idx < 9;  // Primeiros 9 grupos atingem 80%
+  tr.style.background = isPareto ? 'rgba(201,168,76,0.1)' : 'transparent';
+  tr.style.borderBottom = '1px solid #2d3150';
+  tr.innerHTML = `
+    <td style="padding: 8px; text-align: left;">${g.group}</td>
+    <td style="padding: 8px; text-align: right; color: #c9a84c; font-weight: 600;">${fmtMoney(g.rev)}</td>
+    <td style="padding: 8px; text-align: center; font-size: 11px; color: #8b8fa8;">${pct}%</td>
+  `;
+  groupTableBody.appendChild(tr);
+});
+
+// ── PARETO TABLE ──────────────────────────────────────────────────────────
+const tbody = document.getElementById('paretoBody');
+let runRev = 0;
+const top20 = topItems.slice(0, 20);
+top20.forEach((item, idx) => {
+  runRev += item.rev;
+  const pct = (item.rev / TOTAL_REV * 100);
+  const cumPct = (runRev / TOTAL_REV * 100);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="rank">${idx+1}</td>
+    <td class="item-name">${item.item}</td>
+    <td>${Math.ceil(item.qty)}</td>
+    <td class="money highlight" style="text-align: center;">${fmtMoney(item.rev)}</td>
+    <td>
+      <div class="pct-bar-wrap">
+        <div class="pct-bar"><div class="pct-bar-fill" style="width:${Math.min(pct/8.6*100,100)}%"></div></div>
+        <span class="pct-val">${pct.toFixed(1)}%</span>
+      </div>
+    </td>
+    <td class="money">${fmtMoney(runRev)}</td>
+    <td class="cumul">${cumPct.toFixed(1)}%</td>
+  `;
+  tbody.appendChild(tr);
+});
+
+// ── GROUP TABLE ───────────────────────────────────────────────────────────
+const gbody = document.getElementById('groupBody');
+let runGroup = 0;
+byGroup.forEach((g, idx) => {
+  runGroup += g.rev;
+  const pct = (g.rev / TOTAL_REV * 100);
+  const cumPct = (runGroup / TOTAL_REV * 100);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="rank">${idx+1}</td>
+    <td class="group-name">${g.group}</td>
+    <td>${Math.ceil(g.qty)}</td>
+    <td class="money highlight">${fmtMoney(g.rev)}</td>
+    <td>
+      <div class="pct-bar-wrap">
+        <div class="pct-bar"><div class="pct-bar-fill" style="width:${Math.min(pct/27.5*100,100)}%"></div></div>
+        <span class="pct-val">${pct.toFixed(1)}%</span>
+      </div>
+    </td>
+    <td class="cumul">${cumPct.toFixed(1)}%</td>
+  `;
+  gbody.appendChild(tr);
+});
+
+// ── EVENTOS TABLE ──────────────────────────────────────────────────────────
+const eventos = [
+  { desc: 'REUNIÃO GEOVANNA', data: '04/05', qty: 20, salas: 400.00, equip: 400.00, banq: 610.00, rev: 1410.00 },
+  { desc: 'REUNIÃO DE EQUIPE', data: '12/05', qty: 35, salas: 0.00, equip: 0.00, banq: 875.00, rev: 875.00 },
+  { desc: 'JANTAR NACIONAL TINTAS', data: '12/05', qty: 20, salas: 0.00, equip: 0.00, banq: 2300.00, rev: 2300.00 },
+  { desc: 'A DEFINIR', data: '12-14/05', qty: 15, salas: 1350.00, equip: 900.00, banq: 3520.00, rev: 5770.00 },
+  { desc: 'EVENTO ROGERIO', data: '15/05', qty: 40, salas: 400.00, equip: 1725.00, banq: 4070.00, rev: 6195.00 },
+  { desc: 'TERAPÊUTICA MEDICAMENTOSA', data: '16/05', qty: 10, salas: 400.00, equip: 0.00, banq: 413.00, rev: 813.00 },
+  { desc: 'RÔMULO', data: '16-17/05', qty: 25, salas: 1200.00, equip: 0.00, banq: 100.00, rev: 1235.00 },
+  { desc: 'ALMOÇO POR ADESÃO (ENEAGRAMA)', data: '16-17/05', qty: 0, salas: 0.00, equip: 0.00, banq: 3245.00, rev: 3245.00 },
+  { desc: 'ENEAGRAMA DAS PERSONALIDADES', data: '16-17/05', qty: 20, salas: 2000.00, equip: 0.00, banq: 3815.00, rev: 5815.00 },
+  { desc: 'EVENTO IGREJA ADVENTISTA', data: '17/05', qty: 25, salas: 600.00, equip: 180.00, banq: 2375.00, rev: 3155.00 },
+  { desc: 'TRANSFORMADORA DE SUCESSO', data: '23/05', qty: 25, salas: 400.00, equip: 250.00, banq: 710.00, rev: 1360.00 },
+  { desc: 'REUNIÃO MRS', data: '27-28/05', qty: 24, salas: 0.00, equip: 0.00, banq: 3120.00, rev: 3120.00 },
+  { desc: 'TERAPÊUTICA MEDICAMENTOSA', data: '29/05', qty: 10, salas: 400.00, equip: 0.00, banq: 413.00, rev: 813.00 },
+  { desc: 'JANTAR DE ANIVERSÁRIO NO BACCO', data: '29/05', qty: 23, salas: 0.00, equip: 0.00, banq: 2395.97, rev: 2395.97 },
+  { desc: 'DESPERTAR DAS IMPROVÁVEIS', data: '30/05', qty: 170, salas: 1800.00, equip: 0.00, banq: 4590.00, rev: 6390.00 },
+  { desc: 'EVENTO SABOR DA SERRA', data: '30/05', qty: 50, salas: 600.00, equip: 300.00, banq: 13355.00, rev: 14255.00 },
+];
+
+const totalEventos = 59211.97;  // Total do mês
+const evBody = document.getElementById('eventosBody');
+let evIndex = 1;
+
+// Ordenar eventos por data crescente (extrair primeiro número da data)
+const eventosOrdenados = eventos.sort((a, b) => {
+  const dataA = parseInt(a.data.split('/')[0]);
+  const dataB = parseInt(b.data.split('/')[0]);
+  return dataA - dataB;
+});
+
+eventosOrdenados.forEach(ev => {
+  const pct = (ev.rev / totalEventos * 100);
+  const ticketMedio = ev.qty > 0 ? (ev.banq / ev.qty) : 0;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="rank">${evIndex++}</td>
+    <td>${ev.desc}</td>
+    <td>${ev.data}</td>
+    <td>${ev.qty}</td>
+    <td style="text-align: right; color: #60a5fa;">${fmtMoney(ev.salas)}</td>
+    <td style="text-align: right; color: #a78bfa;">${fmtMoney(ev.equip)}</td>
+    <td style="text-align: right; color: #4ade80;">${fmtMoney(ev.banq)}</td>
+    <td class="money highlight" style="text-align: right;">${fmtMoney(ev.rev)}</td>
+    <td style="text-align: right; color: #c9a84c; font-weight: 600;">${fmtMoney(ticketMedio)}</td>
+    <td>
+      <div class="pct-bar-wrap">
+        <div class="pct-bar"><div class="pct-bar-fill" style="width:${pct}%"></div></div>
+        <span class="pct-val">${pct.toFixed(2)}%</span>
+      </div>
+    </td>
+  `;
+  evBody.appendChild(tr);
+});
+
+// ── TOP DAYS TABLE ────────────────────────────────────────────────────────
+const topDays = [...byDateWithEvents].sort((a,b) => b.rev - a.rev).slice(0,10);
+const dbody = document.getElementById('topDaysBody');
+topDays.forEach((d, idx) => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="rank">${idx+1}</td>
+    <td>${d.date}</td>
+    <td class="money highlight">${fmtMoney(d.rev)}</td>
+  `;
+  dbody.appendChild(tr);
+});
+
+// ── CONSUMO INTERNO TABLE ──────────────────────────────────────────────────
+const consumoInterno = [
+  { categoria: 'BEBIDA ALCOOLICA', qty: 5, valor: 210.00 },
+  { categoria: 'BEBIDAS NAO ALCOOL', qty: 285, valor: 2243.72 },
+  { categoria: 'CAED/FADEPE', qty: 13, valor: 0.13 },
+  { categoria: 'CARNES', qty: 25, valor: 1464.00 },
+  { categoria: 'CERVEJA', qty: 2, valor: 30.00 },
+  { categoria: 'COMPLEMENTOS', qty: 7, valor: 63.00 },
+  { categoria: 'COQUETEIS', qty: 20, valor: 700.00 },
+  { categoria: 'ENTRADAS', qty: 12, valor: 626.00 },
+  { categoria: 'FRANGOS', qty: 14, valor: 694.00 },
+  { categoria: 'MASSAS', qty: 9, valor: 405.00 },
+  { categoria: 'OMELETE', qty: 6, valor: 192.00 },
+  { categoria: 'PIZZAS', qty: 4, valor: 159.00 },
+  { categoria: 'RISOTOS', qty: 6, valor: 482.00 },
+  { categoria: 'SANDUICHES', qty: 32, valor: 1338.00 },
+  { categoria: 'SOBREMESAS', qty: 20, valor: 500.00 },
+  { categoria: 'SOPAS E CREMES', qty: 3, valor: 100.00 },
+  { categoria: 'VINHOS', qty: 2, valor: 64.00 },
+];
+
+const totalConsumoValor = consumoInterno.reduce((a, b) => a + b.valor, 0);
+const cbody = document.getElementById('consumoBody');
+
+consumoInterno.forEach((item, idx) => {
+  const pct = (item.valor / totalConsumoValor * 100).toFixed(1);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="rank">${idx+1}</td>
+    <td>${item.categoria}</td>
+    <td style="text-align: right; color: #60a5fa;">${item.qty}</td>
+    <td class="money highlight" style="text-align: right;">${fmtMoney(item.valor)}</td>
+    <td>
+      <div class="pct-bar-wrap">
+        <div class="pct-bar"><div class="pct-bar-fill" style="width:${pct}%"></div></div>
+        <span class="pct-val">${pct}%</span>
+      </div>
+    </td>
+  `;
+  cbody.appendChild(tr);
+});
+</script>
+</body>
+</html>

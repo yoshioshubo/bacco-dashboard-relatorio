@@ -1,0 +1,8 @@
+[build]
+providers = ["nodejs-npm"]
+
+[build.variables]
+NODE_ENV = "production"
+
+[start]
+cmd = "node server.js"
